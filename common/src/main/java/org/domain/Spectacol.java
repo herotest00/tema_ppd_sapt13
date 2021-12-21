@@ -16,7 +16,7 @@ import java.util.Map;
 public class Spectacol {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "titlu")
@@ -41,6 +41,35 @@ public class Spectacol {
     @CollectionTable(name = "spectacol_locuri_vandute", joinColumns = @JoinColumn(name = "owner_id"))
     private List<Integer> locuriVandute = new ArrayList<>();
 
+    public Spectacol() {
+    }
+
+    public Spectacol(JSONObject jsonObject) {
+        this.id = jsonObject.getInt("id");
+        this.titlu = jsonObject.getString("titlu");
+        this.pret = jsonObject.getDouble("pret");
+        this.sold = jsonObject.getDouble("sold");
+        try {
+            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.sala = new Sala(jsonObject.getJSONObject("sala"));
+        JSONArray array = jsonObject.getJSONArray("locuriVandute");
+        for (int i = 0; i < array.length(); i++) {
+            this.locuriVandute.add(array.getInt(i));
+        }
+    }
+
+    public Spectacol(String titlu, Double pret, Double sold, Date data, Sala sala, List<Integer> locuriVandute) {
+        this.titlu = titlu;
+        this.pret = pret;
+        this.sold = sold;
+        this.data = data;
+        this.sala = sala;
+        this.locuriVandute = locuriVandute;
+    }
+
     public List<Integer> getLocuriVandute() {
         return locuriVandute;
     }
@@ -56,7 +85,6 @@ public class Spectacol {
     public void setSala(Sala sala) {
         this.sala = sala;
     }
-
 
     public Double getSold() {
         return sold;
@@ -96,25 +124,6 @@ public class Spectacol {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Spectacol(){ }
-
-    public Spectacol(JSONObject jsonObject) {
-        this.id = jsonObject.getInt("id");
-        this.titlu = jsonObject.getString("titlu");
-        this.pret = jsonObject.getDouble("pret");
-        this.sold = jsonObject.getDouble("sold");
-        try {
-            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        this.sala = new Sala(jsonObject.getJSONObject("sala"));
-        JSONArray array = jsonObject.getJSONArray("locuriVandute");
-        for (int i = 0; i < array.length(); i++) {
-            this.locuriVandute.add(array.getInt(i));
-        }
     }
 
     public JSONObject toJson() {

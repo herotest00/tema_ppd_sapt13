@@ -16,7 +16,7 @@ import java.util.Map;
 public class Vanzare {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Integer id;
 
     @Temporal(TemporalType.DATE)
@@ -37,6 +37,46 @@ public class Vanzare {
     @Column(name = "locuri_vandute")
     @CollectionTable(name = "vanzare_locuri_vandute", joinColumns = @JoinColumn(name = "owner_id"))
     private List<Integer> locuriVandute = new ArrayList<>();
+
+    @ManyToOne(cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "spectacol_id")
+    private Spectacol spectacol;
+
+    public Vanzare() {
+    }
+
+    public Vanzare(Date data, Sala sala, Integer nrBileteVandute, Double suma, List<Integer> locuriVandute, Spectacol spectacol) {
+        this.data = data;
+        this.sala = sala;
+        this.nrBileteVandute = nrBileteVandute;
+        this.suma = suma;
+        this.locuriVandute = locuriVandute;
+        this.spectacol = spectacol;
+    }
+
+    public Vanzare(JSONObject jsonObject) {
+        this.id = jsonObject.getInt("id");
+        try {
+            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.sala = new Sala(jsonObject.getJSONObject("sala"));
+        this.nrBileteVandute = jsonObject.getInt("nrBileteVandute");
+        this.suma = jsonObject.getDouble("suma");
+        JSONArray array = jsonObject.getJSONArray("locuriVandute");
+        for (int i = 0; i < array.length(); i++) {
+            this.locuriVandute.add(array.getInt(i));
+        }
+    }
+
+    public Spectacol getSpectacol() {
+        return spectacol;
+    }
+
+    public void setSpectacol(Spectacol spectacol) {
+        this.spectacol = spectacol;
+    }
 
     public List<Integer> getLocuriVandute() {
         return locuriVandute;
@@ -84,24 +124,6 @@ public class Vanzare {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Vanzare() { }
-
-    public Vanzare(JSONObject jsonObject) {
-        this.id = jsonObject.getInt("id");
-        try {
-            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        this.sala = new Sala(jsonObject.getJSONObject("sala"));
-        this.nrBileteVandute = jsonObject.getInt("nrBileteVandute");
-        this.suma = jsonObject.getDouble("suma");
-        JSONArray array = jsonObject.getJSONArray("locuriVandute");
-        for (int i = 0; i < array.length(); i++) {
-            this.locuriVandute.add(array.getInt(i));
-        }
     }
 
     public JSONObject toJson() {

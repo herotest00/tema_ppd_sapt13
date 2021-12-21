@@ -6,14 +6,11 @@ import org.repo.SalaRepository;
 import org.repo.SpectacolRepository;
 import org.repo.VanzareRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @org.springframework.stereotype.Service
 public class Service implements IService {
 
-    private final int nrTotalLocuri = 100;
     private final SalaRepository salaRepository;
     private final SpectacolRepository spectacolRepository;
     private final VanzareRepository vanzareRepository;
@@ -36,17 +33,39 @@ public class Service implements IService {
             return new ArrayList<>();
         }
 
-        List<Integer> locuriTotale = new ArrayList<>();
-        for (int i = 1; i <= nrTotalLocuri ; i++) {
-            locuriTotale.add(i);
+        Spectacol spectacol1 = optSpectacol.get();
+        List<Integer> locuriDisponibile = new ArrayList<>();
+        for (int i = 1; i <= spectacol1.getSala().getNrLocuri(); i++) {
+            locuriDisponibile.add(i);
         }
-        locuriTotale.removeAll(optSpectacol.get().getLocuriVandute());
-        return locuriTotale;
+        locuriDisponibile.removeAll(optSpectacol.get().getLocuriVandute());
+        return locuriDisponibile;
     }
 
     @Override
     public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
-
-        return null;
+        try {
+            List<Integer> locuriDisponibile = getAllLocuriDisponibile(spectacol);
+            if (locuriDisponibile.size() < locuri.size() || !Collections.disjoint(locuriDisponibile, locuri)) {
+                throw new Exception();
+            }
+            double suma = locuri.size() * spectacol.getPret();
+            Vanzare vanzare = new Vanzare(new Date(), spectacol.getSala(), locuri.size(), suma, locuri, spectacol);
+            vanzareRepository.save(vanzare);
+            spectacolRepository.findById(spectacol.getId())
+                    .map(spectacol1 -> {
+                        spectacol1.getLocuriVandute().addAll(locuri);
+                        spectacol1.setSold(spectacol1.getSold() + suma);
+                        return spectacolRepository.save(spectacol1);
+                    });
+            salaRepository.findById(spectacol.getSala().getId())
+                    .map(sala -> {
+                        sala.getVanzares().add(vanzare);
+                        return salaRepository.save(sala);
+                    });
+            return vanzare;
+        } catch (Exception ex) {
+            throw new RuntimeException("Vanzare nereusita!");
+        }
     }
 }

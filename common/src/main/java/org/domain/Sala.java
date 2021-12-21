@@ -13,7 +13,7 @@ import java.util.Map;
 public class Sala {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "nr_locuri")
@@ -24,6 +24,12 @@ public class Sala {
 
     @OneToMany(mappedBy = "sala", cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<Vanzare> vanzares = new ArrayList<>();
+
+    public Sala(Integer nrLocuri, List<Spectacol> spectacole, List<Vanzare> vanzares) {
+        this.nrLocuri = nrLocuri;
+        this.spectacole = spectacole;
+        this.vanzares = vanzares;
+    }
 
     public List<Vanzare> getVanzares() {
         return vanzares;
