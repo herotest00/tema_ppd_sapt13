@@ -1,2 +1,5 @@
 rootProject.name = 'tema_lab_12'
+include 'client'
+include 'server'
+include 'common'
 
