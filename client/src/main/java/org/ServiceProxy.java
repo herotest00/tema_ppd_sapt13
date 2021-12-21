@@ -1,5 +1,7 @@
 package org;
 
+import org.domain.Spectacol;
+import org.domain.Vanzare;
 import org.json.JSONObject;
 import org.operation.ServerOperation;
 
