@@ -1,6 +1,11 @@
 package org.domain;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,5 +83,25 @@ public class Vanzare {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Vanzare() { }
+
+    public Vanzare(JSONObject jsonObject) {
+        this.id = jsonObject.getInt("id");
+        try {
+            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.sala = new Sala(jsonObject.getJSONObject("sala"));
+        JSONArray array = jsonObject.getJSONArray("locuriVandute");
+        for (int i = 0; i < array.length(); i++) {
+            this.locuriVandute.add(array.getInt(i));
+        }
+    }
+
+    public JSONObject toJson() {
+        return null;
     }
 }
