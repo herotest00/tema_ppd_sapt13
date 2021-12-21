@@ -51,27 +51,43 @@ public class ServiceProxy implements IService {
         }
         reader = new BufferedReader(new InputStreamReader(input));
         executorService.execute(() -> {
-            System.out.println("Hello world!");
+            try {
+                requestReceiver();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 
-    private void requestReceiver() {
-
+    private void requestReceiver() throws IOException {
+        while (true) {
+            JSONObject response = new JSONObject(reader.readLine());
+            if (response.getBoolean("requestResponse")) {
+                ServerOperation operation = ServerOperation.valueOf(response.getString("operation"));
+                Lock lock = operationLockMap.get(operation);
+                Condition condition = operationConditionMap.get(operation);
+                lock.lock();
+                operationResponseMap.put(operation, response);
+                condition.signal();
+                lock.unlock();
+            }
+        }
     }
 
     private JSONObject sendRequestToServer(ServerOperation operation, JSONObject data) {
-        synchronized (this) { // TODO
-            if (!operationResponseMap.containsKey(operation)) {
-                operationResponseMap.put(operation, null);
-                operationLockMap.put(operation, new ReentrantLock());
-                operationConditionMap.put(operation, operationLockMap.get(operation).newCondition());
-            }
+        // TODO: might generate a concurrency problem
+        if (!operationResponseMap.containsKey(operation)) {
             operationResponseMap.put(operation, null);
+            operationLockMap.put(operation, new ReentrantLock());
+            operationConditionMap.put(operation, operationLockMap.get(operation).newCondition());
         }
+        operationResponseMap.put(operation, null);
+
         writer.println(new JSONObject(Map.ofEntries(
                 Map.entry("operation", operation.name()),
                 Map.entry("data", data)
         )));
+
         Lock lock = operationLockMap.get(operation);
         Condition condition = operationConditionMap.get(operation);
         lock.lock();
@@ -88,7 +104,9 @@ public class ServiceProxy implements IService {
 
     @Override
     public List<Spectacol> getAllSpectacole() {
-        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_SPECTACOLE, new JSONObject(""));
+        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_SPECTACOLE, new JSONObject(Map.ofEntries(
+
+        )));
         List<Spectacol> spectacols = new ArrayList<>();
         JSONArray array = response.getJSONArray("data");
         for (int i = 0; i < array.length(); i++) {
@@ -99,7 +117,9 @@ public class ServiceProxy implements IService {
 
     @Override
     public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
-        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_LOCURI, spectacol.toJson());
+        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_LOCURI, new JSONObject(Map.ofEntries(
+                Map.entry("spectacol", spectacol.toJson())
+        )));
         List<Integer> locuri = new ArrayList<>();
         JSONArray array = response.getJSONArray("data");
         for (int i = 0; i < array.length(); i++) {
@@ -115,8 +135,9 @@ public class ServiceProxy implements IService {
             array.put(loc);
         }
         JSONObject response = sendRequestToServer(ServerOperation.REZERVA, new JSONObject(Map.ofEntries(
-                Map.entry("array", array)
+                Map.entry("spectacol", spectacol),
+                Map.entry("locuri", array)
         )));
-        return new Vanzare(response);
+        return new Vanzare(response.getJSONObject("data"));
     }
 }

@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "vanzare")
@@ -95,6 +96,8 @@ public class Vanzare {
             e.printStackTrace();
         }
         this.sala = new Sala(jsonObject.getJSONObject("sala"));
+        this.nrBileteVandute = jsonObject.getInt("nrBileteVandute");
+        this.suma = jsonObject.getDouble("suma");
         JSONArray array = jsonObject.getJSONArray("locuriVandute");
         for (int i = 0; i < array.length(); i++) {
             this.locuriVandute.add(array.getInt(i));
@@ -102,6 +105,15 @@ public class Vanzare {
     }
 
     public JSONObject toJson() {
-        return null;
+        JSONArray array = new JSONArray();
+        this.locuriVandute.stream().forEach(array::put);
+        return new JSONObject(Map.ofEntries(
+                Map.entry("id", this.id),
+                Map.entry("data", this.data.toString()),
+                Map.entry("sala", this.sala.toJson()),
+                Map.entry("nrBileteVandute", this.nrBileteVandute),
+                Map.entry("suma", this.suma),
+                Map.entry("locuriVandute", array)
+        ));
     }
 }

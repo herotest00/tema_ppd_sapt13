@@ -1,8 +1,12 @@
 package org.domain;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "sala")
@@ -51,5 +55,33 @@ public class Sala {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Sala() { }
+
+    public Sala(JSONObject jsonObject) {
+        this.id = jsonObject.getInt("id");
+        this.nrLocuri = jsonObject.getInt("nrLocuri");
+        JSONArray spectaclesJsonArray = jsonObject.getJSONArray("spectacole");
+        for (int i = 0; i < spectaclesJsonArray.length(); i++) {
+            this.spectacole.add(new Spectacol(spectaclesJsonArray.getJSONObject(i)));
+        }
+        JSONArray vanzaresJsonArray = jsonObject.getJSONArray("vanzares");
+        for (int i = 0; i < vanzaresJsonArray.length(); i++) {
+            this.vanzares.add(new Vanzare(vanzaresJsonArray.getJSONObject(i)));
+        }
+    }
+
+    public JSONObject toJson() {
+        JSONArray spectacole = new JSONArray();
+        this.spectacole.stream().forEach(x -> spectacole.put(x.toJson()));
+        JSONArray vanzari = new JSONArray();
+        this.vanzares.stream().forEach(x -> spectacole.put(x.toJson()));
+        return new JSONObject(Map.ofEntries(
+                Map.entry("id", this.id),
+                Map.entry("nrLocuri", this.nrLocuri),
+                Map.entry("spectacole", spectacole),
+                Map.entry("vanzares", vanzari)
+        ));
     }
 }
