@@ -7,6 +7,7 @@ import org.repo.SpectacolRepository;
 import org.repo.VanzareRepository;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @org.springframework.stereotype.Service
 public class Service implements IService {
@@ -22,12 +23,12 @@ public class Service implements IService {
     }
 
     @Override
-    public List<Spectacol> getAllSpectacole() {
+    synchronized public List<Spectacol> getAllSpectacole() {
         return spectacolRepository.findAll();
     }
 
     @Override
-    public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
+    synchronized public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
         Optional<Spectacol> optSpectacol = spectacolRepository.findById(spectacol.getId());
         if (optSpectacol.isEmpty()) {
             return new ArrayList<>();
@@ -43,7 +44,7 @@ public class Service implements IService {
     }
 
     @Override
-    public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
+    synchronized public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
         try {
             List<Integer> locuriDisponibile = getAllLocuriDisponibile(spectacol);
             if (locuriDisponibile.size() < locuri.size() || !Collections.disjoint(locuriDisponibile, locuri)) {
@@ -67,5 +68,15 @@ public class Service implements IService {
         } catch (Exception ex) {
             throw new RuntimeException("Vanzare nereusita!");
         }
+    }
+
+    synchronized public boolean validateData() {
+        List<Spectacol> spectacole = spectacolRepository.findAll();
+        for (Spectacol spectacol : spectacole) {
+            List<Integer> spectacoleAux = new ArrayList<>(spectacol.getLocuriVandute());
+            List<Vanzare> vanzari = vanzareRepository.findAll().stream().filter()
+        }
+
+        return false;
     }
 }

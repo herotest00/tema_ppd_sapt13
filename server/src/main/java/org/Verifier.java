@@ -1,23 +1,32 @@
 package org;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Verifier implements Runnable {
 
-    private final IService service;
+    private final Service service;
     private final Duration timeout;
+    private final String pathToFile;
 
-    public Verifier(IService service, Duration timeout) {
+    public Verifier(Service service, Duration timeout, String pathToFile) {
         this.service = service;
         this.timeout = timeout;
+        this.pathToFile = pathToFile;
     }
 
     @Override
     public void run() {
         try {
-            Thread.sleep(timeout.toMillis());
-
-        } catch (InterruptedException e) {
+            BufferedWriter file = new BufferedWriter(new FileWriter(pathToFile));
+            while (true) {
+                Thread.sleep(timeout.toMillis());
+                file.write(LocalDateTime.now() + ", " + service.validateData() + "\n");
+            }
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
