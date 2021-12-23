@@ -24,12 +24,13 @@ public class Client implements Runnable {
                 List<Spectacol> spectacole = serviceProxy.getAllSpectacole();
                 Spectacol spectacol = spectacole.get(random.nextInt(spectacole.size()));
                 List<Integer> locuriDisponibile = serviceProxy.getAllLocuriDisponibile(spectacol);
-                Collections.shuffle(locuriDisponibile);
-                int nrBilete = (random.nextInt(locuriDisponibile.size()) + 1);
-                List<Integer> locuriRezervate = locuriDisponibile.subList(0, nrBilete);
-                if (locuriRezervate.size() == 0) {
+                if (locuriDisponibile.size() == 0) {
+                    Thread.sleep(2000);
                     continue;
                 }
+                Collections.shuffle(locuriDisponibile);
+                int nrBilete = random.nextInt(Math.min(locuriDisponibile.size(), 5)) + 1;
+                List<Integer> locuriRezervate = locuriDisponibile.subList(0, nrBilete);
                 serviceProxy.rezerva(spectacol, locuriRezervate);
                 System.out.println("Done " + nrBilete + locuriRezervate);
 

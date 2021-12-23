@@ -20,6 +20,7 @@ public class Server {
     public Server(int port, int maxClients, Service service) {
         try {
             serverSocket = new ServerSocket(port);
+            service.getAllSpectacole();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -32,23 +33,18 @@ public class Server {
     }
 
     public void startServer(long miliseconds) {
-//        service.getAllSpectacole();
-//        System.out.println("YES start server");
-            while (this.sacrificialObject != null) {
-                try {
-                    Socket clientSocket = serverSocket.accept();
-                    System.out.println("Accepted client");
-                    service.getAllSpectacole();
-                    System.out.println("YES accept client");
-                    Worker worker = new Worker(clientSocket, this, service);
-                    this.cleaner.register(this.sacrificialObject, worker::disconnect);
-                    executor.execute(worker);
-                } catch (IOException e) {
-                    if (!e.getMessage().equals("Socket closed"))
-                        e.printStackTrace();
-                }
+        while (this.sacrificialObject != null) {
+            try {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Accepted client");
+                Worker worker = new Worker(clientSocket, this, service);
+                this.cleaner.register(this.sacrificialObject, worker::disconnect);
+                executor.execute(worker);
+            } catch (IOException e) {
+                if (!e.getMessage().equals("Socket closed"))
+                    e.printStackTrace();
             }
-        // TODO: inchidere dupa interval de timp
+        }
         try {
             Thread.sleep(miliseconds);
         } catch (InterruptedException e) {

@@ -38,7 +38,7 @@ public class Vanzare {
     @CollectionTable(name = "vanzare_locuri_vandute", joinColumns = @JoinColumn(name = "owner_id"))
     private List<Integer> locuriVandute = new ArrayList<>();
 
-    @ManyToOne(cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne
     @JoinColumn(name = "spectacol_id")
     private Spectacol spectacol;
 

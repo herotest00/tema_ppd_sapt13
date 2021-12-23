@@ -19,10 +19,10 @@ public class Sala {
     @Column(name = "nr_locuri")
     private Integer nrLocuri;
 
-    @OneToMany(mappedBy = "sala", cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
+    @OneToMany(mappedBy = "sala")
     private List<Spectacol> spectacole = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sala", cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
+    @OneToMany(mappedBy = "sala")
     private List<Vanzare> vanzares = new ArrayList<>();
 
     public Sala(Integer nrLocuri, List<Spectacol> spectacole, List<Vanzare> vanzares) {

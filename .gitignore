@@ -1,3 +1,6 @@
 .idea
 .gradle
 database.sqlite
+server/build
+common/build
+client/build

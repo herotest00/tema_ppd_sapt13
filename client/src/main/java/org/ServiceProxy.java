@@ -145,7 +145,7 @@ public class ServiceProxy implements IService {
             array.put(loc);
         }
         JSONObject response = sendRequestToServer(ServerOperation.REZERVA, new JSONObject(Map.ofEntries(
-                Map.entry("spectacol", spectacol),
+                Map.entry("spectacol", spectacol.toJson()),
                 Map.entry("locuri", array)
         )));
         return new Vanzare(response.getJSONObject("data"));

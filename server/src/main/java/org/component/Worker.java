@@ -47,8 +47,8 @@ public class Worker implements Runnable {
         try {
             input = clientSocket.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            service.getAllSpectacole();
-            System.out.println("YES worker");
+//            service.getAllSpectacole();
+//            System.out.println("YES worker");
             while (true) {
                 JSONObject request = new JSONObject(reader.readLine());
                 System.out.println("Request: " + request);

@@ -6,10 +6,13 @@ import org.component.repo.SpectacolRepository;
 import org.component.repo.VanzareRepository;
 import org.domain.Spectacol;
 import org.domain.Vanzare;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @org.springframework.stereotype.Service
+@Transactional(rollbackForClassName = "Service", isolation = Isolation.SERIALIZABLE)
 public class Service implements IService {
 
     public final SpectacolRepository spectacolRepository;
@@ -22,13 +25,21 @@ public class Service implements IService {
         this.vanzareRepository = vanzareRepository;
     }
 
-
-    public List<Spectacol> getAllSpectacole() {
-        return spectacolRepository.findAll();
+    @Override
+     public List<Spectacol> getAllSpectacole() {
+        System.out.println("getSpectacole");
+        try {
+            var a = spectacolRepository.findAll();
+            return a;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage() + ex.getCause());
+        }
+        System.out.println("done getSpectacole");
+        return null;
     }
 
     @Override
-    synchronized public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
+     public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
         System.out.println("getAllLocuriDisponibile");
         Optional<Spectacol> optSpectacol = spectacolRepository.findById(spectacol.getId());
         if (optSpectacol.isEmpty()) {
@@ -45,11 +56,11 @@ public class Service implements IService {
     }
 
     @Override
-    synchronized public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
+     public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
         System.out.println("rezerva");
         try {
             List<Integer> locuriDisponibile = getAllLocuriDisponibile(spectacol);
-            if (locuriDisponibile.size() < locuri.size() || !Collections.disjoint(locuriDisponibile, locuri)) {
+            if (locuriDisponibile.size() < locuri.size() || !locuriDisponibile.containsAll(locuri)) {
                 throw new Exception();
             }
             double suma = locuri.size() * spectacol.getPret();
@@ -68,11 +79,12 @@ public class Service implements IService {
                     });
             return vanzare;
         } catch (Exception ex) {
+
             throw new RuntimeException("Vanzare nereusita!");
         }
     }
 
-    synchronized public boolean validateData() {
+     public boolean validateData() {
         System.out.println("validateData");
         List<Vanzare> vanzari = vanzareRepository.findAll();
         List<Spectacol> spectacole = spectacolRepository.findAll();
