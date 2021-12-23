@@ -51,12 +51,20 @@ public class Worker implements Runnable {
                 ServerOperation operation = ServerOperation.valueOf(request.getString("operation"));
                 JSONObject response = commandList.get(operation).apply(request.getJSONObject("data"));
                 response.put("requestResponse", true);
+                response.put("responseTo", operation);
                 writer.println(response);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public void disconnect() {
+        writer.println(Map.ofEntries(
+                Map.entry("operation", ClientOperation.EXIT),
+                Map.entry("data", "")
+        ));
     }
 
     private JSONObject getAllLocuriHandle(JSONObject jsonObject) {

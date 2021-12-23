@@ -4,6 +4,7 @@ import org.domain.Spectacol;
 import org.domain.Vanzare;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.operation.ClientOperation;
 import org.operation.ServerOperation;
 
 import java.io.*;
@@ -62,8 +63,13 @@ public class ServiceProxy implements IService {
     private void requestReceiver() throws IOException {
         while (true) {
             JSONObject response = new JSONObject(reader.readLine());
+            ClientOperation clientOperation = ClientOperation.valueOf(response.getString("operation"));
+            if (clientOperation == ClientOperation.EXIT) {
+                clientSocket.close();
+                break;
+            }
             if (response.getBoolean("requestResponse")) {
-                ServerOperation operation = ServerOperation.valueOf(response.getString("operation"));
+                ServerOperation operation = ServerOperation.valueOf(response.getString("responseTo"));
                 Lock lock = operationLockMap.get(operation);
                 Condition condition = operationConditionMap.get(operation);
                 lock.lock();

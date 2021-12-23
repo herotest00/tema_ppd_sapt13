@@ -1,6 +1,7 @@
 package org;
 
 import java.io.IOException;
+import java.lang.ref.Cleaner;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class Server {
     private ServerSocket serverSocket = null;
     private ExecutorService executor = null;
     private Service service;
+    private Cleaner cleaner = Cleaner.create();
 
     private final List<Socket> clients = new ArrayList<>();
 
@@ -29,15 +31,25 @@ public class Server {
         this.service = service;
     }
 
-    public void startServer() {
-        // TODO: inchidere dupa interval de timp
-        while (true) {
-            try {
-                Socket clientSocket = serverSocket.accept();
-                executor.execute(new Worker(clientSocket, this, service));
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void startServer(long miliseconds) {
+        executor.execute(() -> {
+            while (true) {
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    Worker worker = new Worker(clientSocket, this, service);
+                    this.cleaner.register(this, worker::disconnect);
+                    executor.execute(worker);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        });
+        // TODO: inchidere dupa interval de timp
+        try {
+            Thread.sleep(miliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        executor.shutdownNow();
     }
 }
