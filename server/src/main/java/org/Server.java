@@ -27,7 +27,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        executor = Executors.newFixedThreadPool(maxClients);
+        executor = Executors.newFixedThreadPool(maxClients + 1);
         this.service = service;
     }
 
