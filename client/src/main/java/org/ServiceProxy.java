@@ -70,6 +70,10 @@ public class ServiceProxy implements IService {
                 clientSocket.close();
                 break;
             }
+            if (clientOperation == ClientOperation.ERROR) {
+                System.out.println(response.getString("message"));
+                continue;
+            }
             if (response.getBoolean("requestResponse")) {
                 ServerOperation operation = ServerOperation.valueOf(response.getString("responseTo"));
                 Lock lock = operationLockMap.get(operation);
