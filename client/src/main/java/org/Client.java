@@ -15,9 +15,8 @@ public class Client implements Runnable {
     public void run() {
         while (true) {
             try {
-                System.out.println("Client started");
-                if (!serviceProxy.isConnected()) {
-                    System.out.println("Nasol");
+                if (serviceProxy.isClosed()) {
+                    System.out.println("Closed connection");
                     return;
                 }
 
@@ -32,11 +31,14 @@ public class Client implements Runnable {
                 int nrBilete = random.nextInt(Math.min(locuriDisponibile.size(), 5)) + 1;
                 List<Integer> locuriRezervate = locuriDisponibile.subList(0, nrBilete);
                 serviceProxy.rezerva(spectacol, locuriRezervate);
-                System.out.println("Done " + nrBilete + locuriRezervate);
+                System.out.println("Done " + nrBilete + " " + locuriRezervate);
 
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            } catch (RuntimeException ignored) {
+                System.out.println("Bye bye");
+                break;
             }
         }
     }

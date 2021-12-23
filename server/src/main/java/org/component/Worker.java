@@ -9,21 +9,21 @@ import org.operation.ServerOperation;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class Worker implements Runnable {
+    private final Socket clientSocket;
+    private final Service service;
     Map<ServerOperation, Function<JSONObject, JSONObject>> commandList = Map.ofEntries(
             Map.entry(ServerOperation.GET_ALL_LOCURI, this::getAllLocuriHandle),
             Map.entry(ServerOperation.GET_ALL_SPECTACOLE, this::getAllSpectacoleHandle),
             Map.entry(ServerOperation.REZERVA, this::rezervaHandle)
     );
-
-    private final Socket clientSocket;
     private PrintWriter writer;
-    private final Service service;
 
     public Worker(Socket clientSocket, Server server, Service service) {
         synchronized (server) {
@@ -59,24 +59,27 @@ public class Worker implements Runnable {
                     response.put("responseTo", operation);
                     System.out.println("Response: " + response);
                     writer.println(response);
-                } catch (RuntimeException ex) {
+                }
+                catch (RuntimeException ex) {
                     writer.println(new JSONObject(Map.ofEntries(
                             Map.entry("operation", ClientOperation.ERROR),
                             Map.entry("message", ex.getMessage())
                     )));
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+            //e.printStackTrace();
         }
 
     }
 
     public void disconnect() {
-        writer.println(Map.ofEntries(
+        writer.println(new JSONObject(Map.ofEntries(
                 Map.entry("operation", ClientOperation.EXIT),
-                Map.entry("data", "")
-        ));
+                Map.entry("data", Map.ofEntries(
+
+                ))
+        )));
     }
 
     private JSONObject getAllLocuriHandle(JSONObject jsonObject) {
@@ -116,5 +119,15 @@ public class Worker implements Runnable {
                 Map.entry("data", vanzare.toJson()),
                 Map.entry("requestResponse", false)
         ));
+    }
+
+    public void closeClientSocket() {
+        if (!this.clientSocket.isClosed()) {
+            try {
+                this.clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

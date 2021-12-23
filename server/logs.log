@@ -1,0 +1,215 @@
+{
+  "date": "2021-12-23T21:54:37.137809300",
+  "Spectacol 3": {
+    "sold": 0,
+    "locuri_vandute": []
+  },
+  "Spectacol 2": {
+    "sold": 0,
+    "locuri_vandute": []
+  },
+  "Spectacol 1": {
+    "sold": 0,
+    "locuri_vandute": []
+  }
+}, corect
+{
+  "date": "2021-12-23T21:54:42.165231200",
+  "Spectacol 3": {
+    "sold": 600,
+    "locuri_vandute": [
+      42,
+      4,
+      83,
+      13
+    ]
+  },
+  "Spectacol 2": {
+    "sold": 1000,
+    "locuri_vandute": [
+      38,
+      10,
+      58,
+      94,
+      41
+    ]
+  },
+  "Spectacol 1": {
+    "sold": 0,
+    "locuri_vandute": []
+  }
+}, corect
+{
+  "date": "2021-12-23T21:54:47.179618400",
+  "Spectacol 3": {
+    "sold": 1200,
+    "locuri_vandute": [
+      42,
+      4,
+      83,
+      13,
+      3,
+      11,
+      2,
+      44
+    ]
+  },
+  "Spectacol 2": {
+    "sold": 1000,
+    "locuri_vandute": [
+      38,
+      10,
+      58,
+      94,
+      41
+    ]
+  },
+  "Spectacol 1": {
+    "sold": 200,
+    "locuri_vandute": [
+      12,
+      37
+    ]
+  }
+}, corect
+{
+  "date": "2021-12-23T21:54:52.201188800",
+  "Spectacol 3": {
+    "sold": 1800,
+    "locuri_vandute": [
+      42,
+      4,
+      83,
+      13,
+      3,
+      11,
+      2,
+      44,
+      23,
+      93,
+      6,
+      69
+    ]
+  },
+  "Spectacol 2": {
+    "sold": 1600,
+    "locuri_vandute": [
+      38,
+      10,
+      58,
+      94,
+      41,
+      98,
+      39,
+      42
+    ]
+  },
+  "Spectacol 1": {
+    "sold": 200,
+    "locuri_vandute": [
+      12,
+      37
+    ]
+  }
+}, corect
+{
+  "date": "2021-12-23T21:54:57.217740900",
+  "Spectacol 3": {
+    "sold": 1950,
+    "locuri_vandute": [
+      42,
+      4,
+      83,
+      13,
+      3,
+      11,
+      2,
+      44,
+      23,
+      93,
+      6,
+      69,
+      79
+    ]
+  },
+  "Spectacol 2": {
+    "sold": 2400,
+    "locuri_vandute": [
+      38,
+      10,
+      58,
+      94,
+      41,
+      98,
+      39,
+      42,
+      50,
+      61,
+      9,
+      1
+    ]
+  },
+  "Spectacol 1": {
+    "sold": 200,
+    "locuri_vandute": [
+      12,
+      37
+    ]
+  }
+}, corect
+{
+  "date": "2021-12-23T21:55:02.234080",
+  "Spectacol 3": {
+    "sold": 1950,
+    "locuri_vandute": [
+      42,
+      4,
+      83,
+      13,
+      3,
+      11,
+      2,
+      44,
+      23,
+      93,
+      6,
+      69,
+      79
+    ]
+  },
+  "Spectacol 2": {
+    "sold": 3200,
+    "locuri_vandute": [
+      38,
+      10,
+      58,
+      94,
+      41,
+      98,
+      39,
+      42,
+      50,
+      61,
+      9,
+      1,
+      97,
+      30,
+      16,
+      23
+    ]
+  },
+  "Spectacol 1": {
+    "sold": 900,
+    "locuri_vandute": [
+      12,
+      37,
+      20,
+      93,
+      24,
+      54,
+      97,
+      26,
+      38
+    ]
+  }
+}, corect

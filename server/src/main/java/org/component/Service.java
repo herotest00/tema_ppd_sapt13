@@ -6,13 +6,14 @@ import org.component.repo.SpectacolRepository;
 import org.component.repo.VanzareRepository;
 import org.domain.Spectacol;
 import org.domain.Vanzare;
-import org.springframework.transaction.annotation.Isolation;
+import org.json.JSONObject;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @org.springframework.stereotype.Service
-@Transactional(rollbackForClassName = "Service", isolation = Isolation.SERIALIZABLE)
+//@Transactional(rollbackForClassName = "Service")
 public class Service implements IService {
 
     public final SpectacolRepository spectacolRepository;
@@ -25,8 +26,9 @@ public class Service implements IService {
         this.vanzareRepository = vanzareRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
-     public List<Spectacol> getAllSpectacole() {
+    synchronized public List<Spectacol> getAllSpectacole() {
         System.out.println("getSpectacole");
         try {
             var a = spectacolRepository.findAll();
@@ -38,8 +40,9 @@ public class Service implements IService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     @Override
-     public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
+    synchronized public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
         System.out.println("getAllLocuriDisponibile");
         Optional<Spectacol> optSpectacol = spectacolRepository.findById(spectacol.getId());
         if (optSpectacol.isEmpty()) {
@@ -55,8 +58,9 @@ public class Service implements IService {
         return locuriDisponibile;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-     public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
+    synchronized public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
         System.out.println("rezerva");
         try {
             List<Integer> locuriDisponibile = getAllLocuriDisponibile(spectacol);
@@ -79,12 +83,18 @@ public class Service implements IService {
                     });
             return vanzare;
         } catch (Exception ex) {
-
+            System.out.println("Exceptie ARUNCATA");
             throw new RuntimeException("Vanzare nereusita!");
         }
     }
 
-     public boolean validateData() {
+    @Transactional(readOnly = true)
+    synchronized public JSONObject validateData() {
+        JSONObject json = new JSONObject(
+                Map.ofEntries(
+                        Map.entry("date", LocalDateTime.now())
+                )
+        );
         System.out.println("validateData");
         List<Vanzare> vanzari = vanzareRepository.findAll();
         List<Spectacol> spectacole = spectacolRepository.findAll();
@@ -96,16 +106,22 @@ public class Service implements IService {
                 if (vanzare.getSpectacol().getId().equals(spectacol.getId())) {
                     locuriVanduteSpectacol.removeAll(vanzare.getLocuriVandute());
                     if (nrLocuri - vanzare.getLocuriVandute().size() != locuriVanduteSpectacol.size()) {
-                        return false;
+                        return null;
                     }
                     nrLocuri = locuriVanduteSpectacol.size();
                     sold -= vanzare.getSuma();
                 }
             }
+            json.put(spectacol.getTitlu(), new JSONObject(
+                    Map.ofEntries(
+                            Map.entry("sold", spectacol.getSold()),
+                            Map.entry("locuri_vandute", spectacol.getLocuriVandute())
+                    )
+            ));
             if (sold != 0) {
-                return false;
+                return null;
             }
         }
-        return true;
+        return json;
     }
 }

@@ -1,18 +1,20 @@
 package org.component;
 
+import org.json.JSONObject;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Verifier implements Runnable {
+public class IntegrityManager implements Runnable {
 
     private final Service service;
     private final Duration timeout;
     private final String pathToFile;
 
-    public Verifier(Service service, Duration timeout, String pathToFile) {
+    public IntegrityManager(Service service, Duration timeout, String pathToFile) {
         this.service = service;
         this.timeout = timeout;
         this.pathToFile = pathToFile;
@@ -29,8 +31,9 @@ public class Verifier implements Runnable {
         if (file != null) {
             try {
                 while (true) {
-                    if (service.validateData()) {
-                        file.write(LocalDateTime.now() + ", corect\n");
+                    JSONObject json = service.validateData();
+                    if (json != null) {
+                        file.write( json.toString(2) + ", corect\n");
                     }
                     else {
                         file.write(LocalDateTime.now() + ", incorect\n");

@@ -68,6 +68,13 @@ public class ServiceProxy implements IService {
             ClientOperation clientOperation = ClientOperation.valueOf(response.getString("operation"));
             if (clientOperation == ClientOperation.EXIT) {
                 clientSocket.close();
+                for (var entry : this.operationConditionMap.entrySet()) {
+                    Lock lock = operationLockMap.get(entry.getKey());
+                    Condition condition = entry.getValue();
+                    lock.lock();
+                    condition.signal();
+                    lock.unlock();
+                }
                 break;
             }
             if (clientOperation == ClientOperation.ERROR) {
@@ -86,7 +93,7 @@ public class ServiceProxy implements IService {
         }
     }
 
-    private JSONObject sendRequestToServer(ServerOperation operation, JSONObject data) {
+    private JSONObject sendRequestToServer(ServerOperation operation, JSONObject data) throws InterruptedIOException {
         // TODO: might generate a concurrency problem
         if (!operationResponseMap.containsKey(operation)) {
             operationResponseMap.put(operation, null);
@@ -104,7 +111,7 @@ public class ServiceProxy implements IService {
         Condition condition = operationConditionMap.get(operation);
         System.out.println("Waiting for response");
         lock.lock();
-        while (operationResponseMap.get(operation) == null) {
+        while (operationResponseMap.get(operation) == null && !this.isClosed()) {
             try {
                 condition.await();
             } catch (InterruptedException e) {
@@ -112,34 +119,49 @@ public class ServiceProxy implements IService {
             }
         }
         lock.unlock();
+        if (this.isClosed()) {
+            throw new RuntimeException("Server closed connection");
+        }
         return operationResponseMap.get(operation);
     }
 
     @Override
     public List<Spectacol> getAllSpectacole() {
-        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_SPECTACOLE, new JSONObject(Map.ofEntries(
+        JSONObject response = null;
+        try {
+            response = sendRequestToServer(ServerOperation.GET_ALL_SPECTACOLE, new JSONObject(Map.ofEntries(
 
-        )));
-        System.out.println("Send request to server");
-        List<Spectacol> spectacols = new ArrayList<>();
-        JSONArray array = response.getJSONArray("data");
-        for (int i = 0; i < array.length(); i++) {
-            spectacols.add(new Spectacol(array.getJSONObject(i)));
+            )));
+            System.out.println("Send request to server");
+            List<Spectacol> spectacols = new ArrayList<>();
+            JSONArray array = response.getJSONArray("data");
+            for (int i = 0; i < array.length(); i++) {
+                spectacols.add(new Spectacol(array.getJSONObject(i)));
+            }
+            return spectacols;
+        } catch (InterruptedIOException e) {
+            e.printStackTrace();
         }
-        return spectacols;
+        return null;
     }
 
     @Override
     public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
-        JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_LOCURI, new JSONObject(Map.ofEntries(
-                Map.entry("spectacol", spectacol.toJson())
-        )));
-        List<Integer> locuri = new ArrayList<>();
-        JSONArray array = response.getJSONArray("data");
-        for (int i = 0; i < array.length(); i++) {
-            locuri.add(array.getInt(i));
+        JSONObject response = null;
+        try {
+            response = sendRequestToServer(ServerOperation.GET_ALL_LOCURI, new JSONObject(Map.ofEntries(
+                    Map.entry("spectacol", spectacol.toJson())
+            )));
+            List<Integer> locuri = new ArrayList<>();
+            JSONArray array = response.getJSONArray("data");
+            for (int i = 0; i < array.length(); i++) {
+                locuri.add(array.getInt(i));
+            }
+            return locuri;
+        } catch (InterruptedIOException e) {
+            e.printStackTrace();
         }
-        return locuri;
+        return null;
     }
 
     @Override
@@ -148,14 +170,24 @@ public class ServiceProxy implements IService {
         for (Integer loc : locuri) {
             array.put(loc);
         }
-        JSONObject response = sendRequestToServer(ServerOperation.REZERVA, new JSONObject(Map.ofEntries(
-                Map.entry("spectacol", spectacol.toJson()),
-                Map.entry("locuri", array)
-        )));
-        return new Vanzare(response.getJSONObject("data"));
+        JSONObject response = null;
+        try {
+            response = sendRequestToServer(ServerOperation.REZERVA, new JSONObject(Map.ofEntries(
+                    Map.entry("spectacol", spectacol.toJson()),
+                    Map.entry("locuri", array)
+            )));
+            return new Vanzare(response.getJSONObject("data"));
+        } catch (InterruptedIOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public boolean isConnected() {
-        return clientSocket.isConnected();
+    public boolean isClosed() {
+        boolean status = clientSocket.isClosed();
+        if (status && !executorService.isShutdown()) {
+            executorService.shutdown();
+        }
+        return status;
     }
 }

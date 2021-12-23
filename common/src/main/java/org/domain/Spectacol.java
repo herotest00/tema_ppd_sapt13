@@ -17,7 +17,7 @@ import java.util.Map;
 @Table(name = "spectacol")
 public class Spectacol {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 

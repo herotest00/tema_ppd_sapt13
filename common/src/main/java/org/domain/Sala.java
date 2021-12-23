@@ -12,7 +12,7 @@ import java.util.Map;
 @Table(name = "sala")
 public class Sala {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
