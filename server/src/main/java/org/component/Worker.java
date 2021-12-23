@@ -53,11 +53,18 @@ public class Worker implements Runnable {
                 JSONObject request = new JSONObject(reader.readLine());
                 System.out.println("Request: " + request);
                 ServerOperation operation = ServerOperation.valueOf(request.getString("operation"));
-                JSONObject response = commandList.get(operation).apply(request.getJSONObject("data"));
-                response.put("requestResponse", true);
-                response.put("responseTo", operation);
-                System.out.println("Response: " + response);
-                writer.println(response);
+                try {
+                    JSONObject response = commandList.get(operation).apply(request.getJSONObject("data"));
+                    response.put("requestResponse", true);
+                    response.put("responseTo", operation);
+                    System.out.println("Response: " + response);
+                    writer.println(response);
+                } catch (RuntimeException ex) {
+                    writer.println(new JSONObject(Map.ofEntries(
+                            Map.entry("operation", ClientOperation.ERROR),
+                            Map.entry("message", ex.getMessage())
+                    )));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
