@@ -8,13 +8,14 @@
     <session-factory>
         <property name="dialect">org.hibernate.dialect.SQLiteDialect</property>
         <property name="connection.driver_class">org.sqlite.JDBC</property>
-        <property name="connection.url">jdbc:sqlite:D:\\Users\\Adrian\\Desktop\\Faculta\\An3\\Sem1\\MA\\labs\\crud-project-herotest00\\server\\database.db</property>
+        <property name="connection.url">jdbc:sqlite:D:\\Users\\Adrian\\Desktop\\Faculta\\An3\\Sem1\\PPD\\labs\\tema_lab_12\\database.sqlite</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <property name="show_sql">true</property>
         <property name="format_sql">true</property>
 
-<!--        <mapping class="org.company.domain.Request"/>-->
-<!--        <mapping class="org.company.domain.User"/>-->
+        <mapping class="org.domain.Sala"/>
+        <mapping class="org.domain.Spectacol"/>
+        <mapping class="org.domain.Vanzare"/>
     </session-factory>
 </hibernate-configuration>

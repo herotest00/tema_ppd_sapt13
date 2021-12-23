@@ -1,0 +1,5 @@
+delete FROM vanzare;
+DELETE FROM spectacol;
+INSERT INTO spectacol (data_spectacol, pret_bilet, sold, titlu, id_sala) VALUES (1640271791765, 100, 0, 'Spectacol 1', 1)
+INSERT INTO spectacol (data_spectacol, pret_bilet, sold, titlu, id_sala) VALUES (1640271791765, 200, 0, 'Spectacol 2', 1)
+INSERT INTO spectacol (data_spectacol, pret_bilet, sold, titlu, id_sala) VALUES (1640271791765, 150, 0, 'Spectacol 3', 1)

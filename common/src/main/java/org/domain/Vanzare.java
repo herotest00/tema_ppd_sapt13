@@ -56,11 +56,7 @@ public class Vanzare {
 
     public Vanzare(JSONObject jsonObject) {
         this.id = jsonObject.getInt("id");
-        try {
-            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        this.data = new Date(jsonObject.getLong("data"));
         this.sala = new Sala(jsonObject.getJSONObject("sala"));
         this.nrBileteVandute = jsonObject.getInt("nrBileteVandute");
         this.suma = jsonObject.getDouble("suma");
@@ -131,7 +127,7 @@ public class Vanzare {
         this.locuriVandute.stream().forEach(array::put);
         return new JSONObject(Map.ofEntries(
                 Map.entry("id", this.id),
-                Map.entry("data", this.data.toString()),
+                Map.entry("data", this.data.getTime()),
                 Map.entry("sala", this.sala.toJson()),
                 Map.entry("nrBileteVandute", this.nrBileteVandute),
                 Map.entry("suma", this.suma),

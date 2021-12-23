@@ -42,7 +42,7 @@ public class ServiceProxy implements IService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writer = new PrintWriter(output);
+        writer = new PrintWriter(output, true);
 
         InputStream input = null;
         try {
@@ -62,7 +62,9 @@ public class ServiceProxy implements IService {
 
     private void requestReceiver() throws IOException {
         while (true) {
-            JSONObject response = new JSONObject(reader.readLine());
+            String read = reader.readLine();
+            System.out.println(read);
+            JSONObject response = new JSONObject(read);
             ClientOperation clientOperation = ClientOperation.valueOf(response.getString("operation"));
             if (clientOperation == ClientOperation.EXIT) {
                 clientSocket.close();
@@ -96,6 +98,7 @@ public class ServiceProxy implements IService {
 
         Lock lock = operationLockMap.get(operation);
         Condition condition = operationConditionMap.get(operation);
+        System.out.println("Waiting for response");
         lock.lock();
         while (operationResponseMap.get(operation) == null) {
             try {
@@ -113,6 +116,7 @@ public class ServiceProxy implements IService {
         JSONObject response = sendRequestToServer(ServerOperation.GET_ALL_SPECTACOLE, new JSONObject(Map.ofEntries(
 
         )));
+        System.out.println("Send request to server");
         List<Spectacol> spectacols = new ArrayList<>();
         JSONArray array = response.getJSONArray("data");
         for (int i = 0; i < array.length(); i++) {
@@ -145,5 +149,9 @@ public class ServiceProxy implements IService {
                 Map.entry("locuri", array)
         )));
         return new Vanzare(response.getJSONObject("data"));
+    }
+
+    public boolean isConnected() {
+        return clientSocket.isConnected();
     }
 }

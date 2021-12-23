@@ -4,8 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
+import javax.xml.crypto.Data;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,15 +47,12 @@ public class Spectacol {
     }
 
     public Spectacol(JSONObject jsonObject) {
+        System.out.println(jsonObject);
         this.id = jsonObject.getInt("id");
         this.titlu = jsonObject.getString("titlu");
         this.pret = jsonObject.getDouble("pret");
         this.sold = jsonObject.getDouble("sold");
-        try {
-            this.data = DateFormat.getDateInstance().parse(jsonObject.getString("data"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        this.data = new Date(jsonObject.getLong("data"));
         this.sala = new Sala(jsonObject.getJSONObject("sala"));
         JSONArray array = jsonObject.getJSONArray("locuriVandute");
         for (int i = 0; i < array.length(); i++) {
@@ -134,7 +133,7 @@ public class Spectacol {
                 Map.entry("titlu", this.titlu),
                 Map.entry("pret", this.pret),
                 Map.entry("sold", this.sold),
-                Map.entry("data", this.data.toString()),
+                Map.entry("data", this.data.getTime()),
                 Map.entry("sala", this.sala.toJson()),
                 Map.entry("locuriVandute", array)
         ));
