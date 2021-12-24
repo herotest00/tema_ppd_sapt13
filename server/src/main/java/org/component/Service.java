@@ -7,13 +7,13 @@ import org.component.repo.VanzareRepository;
 import org.domain.Spectacol;
 import org.domain.Vanzare;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 @org.springframework.stereotype.Service
-//@Transactional(rollbackForClassName = "Service")
 public class Service implements IService {
 
     public final SpectacolRepository spectacolRepository;
@@ -26,9 +26,9 @@ public class Service implements IService {
         this.vanzareRepository = vanzareRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     @Override
-    synchronized public List<Spectacol> getAllSpectacole() {
+    public List<Spectacol> getAllSpectacole() {
         System.out.println("getSpectacole");
         try {
             var a = spectacolRepository.findAll();
@@ -40,9 +40,9 @@ public class Service implements IService {
         return null;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     @Override
-    synchronized public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
+    public List<Integer> getAllLocuriDisponibile(Spectacol spectacol) {
         System.out.println("getAllLocuriDisponibile");
         Optional<Spectacol> optSpectacol = spectacolRepository.findById(spectacol.getId());
         if (optSpectacol.isEmpty()) {
@@ -58,9 +58,9 @@ public class Service implements IService {
         return locuriDisponibile;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.REPEATABLE_READ)
     @Override
-    synchronized public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
+    public Vanzare rezerva(Spectacol spectacol, List<Integer> locuri) {
         System.out.println("rezerva");
         try {
             List<Integer> locuriDisponibile = getAllLocuriDisponibile(spectacol);
@@ -88,8 +88,8 @@ public class Service implements IService {
         }
     }
 
-    @Transactional(readOnly = true)
-    synchronized public JSONObject validateData() {
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    public JSONObject validateData() {
         JSONObject json = new JSONObject(
                 Map.ofEntries(
                         Map.entry("date", LocalDateTime.now())

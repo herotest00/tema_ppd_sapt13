@@ -15,7 +15,7 @@ public class SpringConfig {
     @Bean
     public Void getServer(Service service) {
         Server server = new Server(1234, 10, service);
-        server.startServer(30 * 1000);
+        server.startServer(60 * 1000);
         return null;
     }
 }
